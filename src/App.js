@@ -9,17 +9,18 @@ class App extends Component {
   constructor() {
     super()
     this.state = {
-        playerX: 500,
-        playerY: 500,
+        playerX: 50,
+        playerY: 50,
         color: 'orange',
         speed: 1,
         turbo: false,
-        previous: [{playerX: 500, playerY: 500}],
-        direction: 'left'
+        previous: [{playerX: 50, playerY: 50}],
+        direction: null,
+        width: 500,
+        height: 500,
+        winner: null
     }
   }
-
-  
   
   handleKeyDown = (e) => {
     switch(e.key) {
@@ -55,6 +56,26 @@ class App extends Component {
 
   }
 
+  collision = () => {
+    let currPos = {'playerX': this.state.playerX, 'playerY': this.state.playerY}
+    let previousCopy = [...this.state.previous]
+    let width = this.state.width
+    let height = this.state.height
+    previousCopy[previousCopy.length-1] = {playerX: 999999, playerY: 999999}
+    previousCopy.forEach(function(e) {
+      if ((e.playerX === currPos.playerX && e.playerY === currPos.playerY) ||
+        currPos.playerX > width ||
+        currPos.playerY > height ||
+        currPos.playerX < 0 ||
+        currPos.playerY < 0) {
+          console.log('crashed!')
+          return true
+        } else {
+          return false
+      }
+    })
+  }
+
   draw = () => {
     let previousCopy = [...this.state.previous]
     switch(this.state.direction) {
@@ -87,7 +108,16 @@ class App extends Component {
         })
         break;
       }
-    window.requestAnimationFrame(this.draw)
+    if(!this.state.winner) {
+      if(this.collision()) {
+        console.log('winner');
+        this.setState({
+          winner: true
+        })
+      } else {
+        window.requestAnimationFrame(this.draw)
+      }
+    }
   }
 
   componentDidMount() {
@@ -108,9 +138,9 @@ class App extends Component {
       <div tabIndex='0' autoFocus onKeyPress={this.handleKeyDown} className="App">
         <h1>Light Bikes</h1>
         <h3>Hitting Things with Light</h3>
-        {/* <canvas tabIndex='1' id="myCanvas" ref="canvas" width={666} height={666} onKeyPress={this.handleKeyDown}> </canvas>
-        <script src="../public/main.js"></script> */}
-        <Stage  className="myGame" tabIndex='1' ref="game" width={1000} height={1000}>
+        {/* <canvas tabIndex='1' id="myCanvas" ref="canvas" props.={666} height={666} onKeyPress={this.handleKeyDown}> </canvas>
+        <script src="../public/main.js"></scripprops.t> */}
+        <Stage  className="myGame" tabIndex='1' ref="game" width={this.state.width} height={this.state.height}>
           <Layer tabIndex='2'>
             <Rect 
               x={this.state.playerX} y={this.state.playerY} width={10} height={10}

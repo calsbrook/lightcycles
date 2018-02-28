@@ -7,7 +7,7 @@ import Konva from 'konva'
 const CanvasComponent = (props) => {
     return (
             <Rect
-                x={props.playerX} y={props.playerY} width={5} height={5}
+                x={props.playerX - 3} y={props.playerY - 3} width={6} height={6}
                 fill={props.color}
             />
     )

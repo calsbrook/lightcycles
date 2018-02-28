@@ -12,11 +12,11 @@ class App extends Component {
         playerX: 50,
         playerY: 50,
         color: 'orange',
-        speed: 1,
+        speed: 5,
         turbo: false,
         previous: [{playerX: 50, playerY: 50}],
         direction: null,
-        width: 500,
+        width: 719,
         height: 500,
         winner: null
     }
@@ -62,18 +62,18 @@ class App extends Component {
     let width = this.state.width
     let height = this.state.height
     previousCopy[previousCopy.length-1] = {playerX: 999999, playerY: 999999}
+    let check = false
     previousCopy.forEach(function(e) {
       if ((e.playerX === currPos.playerX && e.playerY === currPos.playerY) ||
         currPos.playerX > width ||
         currPos.playerY > height ||
         currPos.playerX < 0 ||
         currPos.playerY < 0) {
-          console.log('crashed!')
-          return true
-        } else {
-          return false
-      }
-    })
+          console.log('hit');
+          check = true
+        }
+  })
+     return check 
   }
 
   draw = () => {
@@ -120,10 +120,6 @@ class App extends Component {
     }
   }
 
-  componentDidMount() {
-    window.requestAnimationFrame(this.draw)
-  }
-
   makeTrail() {
     let trail = []
     this.state.previous.forEach(function (key) {
@@ -133,27 +129,37 @@ class App extends Component {
     return trail
   }
 
+  componentDidMount() {
+    window.requestAnimationFrame(this.draw)
+  }
+
   render() {
     return (
-      <div tabIndex='0' autoFocus onKeyPress={this.handleKeyDown} className="App">
+      <div className="page" tabIndex='0' autoFocus="true" onKeyPress={this.handleKeyDown} className="App">
         <h1>Light Bikes</h1>
         <h3>Hitting Things with Light</h3>
         {/* <canvas tabIndex='1' id="myCanvas" ref="canvas" props.={666} height={666} onKeyPress={this.handleKeyDown}> </canvas>
         <script src="../public/main.js"></scripprops.t> */}
-        <Stage  className="myGame" tabIndex='1' ref="game" width={this.state.width} height={this.state.height}>
-          <Layer tabIndex='2'>
+        <div className="myGame" >
+        <Stage tabIndex='1' ref="game" width={this.state.width} height={this.state.height}>
+          <Layer className="board" tabIndex='2'>
             <Rect 
-              x={this.state.playerX} y={this.state.playerY} width={10} height={10}
-              fill={'blue'}
+              x={0} y={0} width={this.state.width} height={this.state.height}
+              fill={'gray'}
             />
             <Line 
               points={this.makeTrail()}
               stroke={this.state.color}
               strokeWidth={5}
             />
+            <Rect 
+              x={this.state.playerX - 5} y={this.state.playerY - 5} width={10} height={10}
+              fill={'blue'}
+            />
             <CanvasComponent autoFocus tabIndex='3' onKeyPress={this.handleKeyDown} playerX={this.state.playerX} playerY={this.state.playerY} color={this.state.color}/>
           </Layer>
         </Stage>
+        </div>
       </div>
     );
   }

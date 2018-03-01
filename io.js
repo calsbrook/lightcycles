@@ -1,14 +1,19 @@
 const io = require('socket.io')();
 
-io.on('connection', (socket) => {
-    console.log('C O N N E C T I O N');
-  socket.on('subscribeToTimer', (interval) => {
-    console.log('socket is subscribing to timer with interval ', interval);
-    setInterval(() => {
-      socket.emit('timer', new Date());
-    }, interval);
-  });
+var users = {}
+
+io.sockets.on('connection', (socket) => {
+    socket.broadcast.emit('broadcast', 'hello friends!');
+    console.log(`${new Date().toISOString()} ID ${socket.id} connected.`);
+    users[socket.id] = JSON.parse(socket.request._query['user']);
+    // console.log(users)
+    socket.join('waiting room')
+    socket.on('disconnect', () => {
+        console.log('disconnected')
+    })
+    // let position = JSON.parse(socket.request._query['location'])
+    // console.log(position)
 });
 
-console.log('socket listening on the same port');
+
 module.exports = io;

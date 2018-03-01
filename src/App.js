@@ -14,55 +14,73 @@ import LoginPage from './LoginPage/LoginPage'
 import ProfilePage from './ProfilePage/ProfilePage'
 import './App.css';
 
-
 class App extends Component {
 
   constructor() {
     super()
     this.state = {
       user: {email: null},
-      playerX: 50,
-      playerY: 50,
-      color: 'orange',
+      player1: {
+        playerX: 550,
+        playerY: 250,
+        color: 'orange',
+        previous: [{playerX: 550, playerY: 250}],
+        direction: null,
+      },
+      player2: {
+        playerX: 250,
+        playerY: 250,
+        color: 'blue',
+        previous: [{playerX: 250, playerY: 250}],
+        direction: null,
+      },
       speed: 5,
-      turbo: false,
-      previous: [{playerX: 50, playerY: 50}],
-      direction: null,
       width: 712,
       height: 500,
-      winner: null
+      winner: null,
+      socketConnect: true
     }
+    
   }
 
+  handleGameJoin = (data) => {
+    console.log(data)
+    console.log('jjjjoined')
+  }
   //Game functions
   
   handleKeyDown = (e) => {
+    let player1Copy = {...this.state.player1}
     switch(e.key) {
       case 'w':
-        if(this.state.direction !== 'down') {
+        if(this.state.player1.direction !== 'down') {
+          player1Copy.direction = 'up'
           this.setState({
-            direction: 'up'
+            player1: player1Copy
           })
         }
         break;
       case 'a':
-        if(this.state.direction !== 'right') {
+        if(this.state.player1.direction !== 'right') {
+          player1Copy.direction = 'left'
           this.setState({
-            direction: 'left'
+            player1: player1Copy
           })
         }
         break;
       case 's':
-        if(this.state.direction !== 'up') {
+        if(this.state.player1.direction !== 'up') {
+          player1Copy.direction = 'down'
           this.setState({
-            direction: 'down'
+            player1: player1Copy
           })
         }
         break;
       case 'd':
-        if(this.state.direction !== 'left') {
+        if(this.state.player1.direction !== 'left') {
+          player1Copy.direction = 'right'
           this.setState({
-            direction: 'right'
+            player1: player1Copy
           })
         }
         break;
@@ -71,8 +89,8 @@ class App extends Component {
   }
 
   collision = () => {
-    let currPos = {'playerX': this.state.playerX, 'playerY': this.state.playerY}
-    let previousCopy = [...this.state.previous]
+    let currPos = {'playerX': this.state.player1.playerX, 'playerY': this.state.player1.playerY}
+    let previousCopy = [...this.state.player1.previous]
     let width = this.state.width
     let height = this.state.height
     previousCopy[previousCopy.length-1] = {playerX: 999999, playerY: 999999}
@@ -91,34 +109,37 @@ class App extends Component {
   }
 
   draw = () => {
-    let previousCopy = [...this.state.previous]
-    switch(this.state.direction) {
+    let previousCopy = [...this.state.player1.previous]
+    let player1Copy = {...this.state.player1}
+    switch(this.state.player1.direction) {
       case 'up':
-        previousCopy.push({playerX: this.state.playerX, playerY: this.state.playerY - this.state.speed})
-        this.setState({
-          playerY: this.state.playerY - this.state.speed,
-          previous: previousCopy
-        })
+        previousCopy.push({playerX: this.state.player1.playerX, playerY: this.state.player1.playerY - this.state.speed})
+        player1Copy.playerY = this.state.player1.playerY - this.state.speed
+        player1Copy.previous = previousCopy
+        this.setState({player1: player1Copy})
         break;
       case 'left':
-        previousCopy.push({playerX: this.state.playerX - this.state.speed, playerY: this.state.playerY})
+        previousCopy.push({playerX: this.state.player1.playerX - this.state.speed, playerY: this.state.player1.playerY})
+        player1Copy.playerX = this.state.player1.playerX - this.state.speed,
+        player1Copy.previous = previousCopy
         this.setState({
-          playerX: this.state.playerX - this.state.speed,
-          previous: previousCopy
+          player1: player1Copy
         })
         break;
       case 'down':
-        previousCopy.push({playerX: this.state.playerX, playerY: this.state.playerY + this.state.speed})
+        previousCopy.push({playerX: this.state.player1.playerX, playerY: this.state.player1.playerY + this.state.speed})
+        player1Copy.playerY = this.state.player1.playerY + this.state.speed,
+        player1Copy.previous = previousCopy
         this.setState({
-          playerY: this.state.playerY + this.state.speed,
-          previous: previousCopy
+          player1: player1Copy
         })
         break;
       case 'right':
-        previousCopy.push({playerX: this.state.playerX + this.state.speed, playerY: this.state.playerY })
+        previousCopy.push({playerX: this.state.player1.playerX + this.state.speed, playerY: this.state.player1.playerY })
+        player1Copy.playerX = this.state.player1.playerX + this.state.speed,
+        player1Copy.previous = previousCopy
         this.setState({
-          playerX: this.state.playerX + this.state.speed,
-          previous: previousCopy
+          player1: player1Copy
         })
         break;
       }
@@ -127,6 +148,7 @@ class App extends Component {
         console.log('winner');
         let userCopy = this.state.user
         userCopy.losses = userCopy.losses + 1
+        // this.socket.emit('gameOver')
         this.setState({
           winner: true,
           user: userCopy
@@ -137,9 +159,9 @@ class App extends Component {
     }
   }
 
-  makeTrail() {
+  makeTrail(player) {
     let trail = []
-    this.state.previous.forEach(function (key) {
+    player.previous.forEach(function (key) {
       trail.push(key.playerX)
       trail.push(key.playerY)
     })
@@ -159,19 +181,44 @@ class App extends Component {
   handleLogin = () => {
     this.setState({
       user: userService.getUser(),
-      playerX: 50,
-      playerY: 50,
-      winner: null,
+      playerX: 550,
+      playerY: 250,
+      color: 'orange',
+      speed: 5,
+      previous: [{playerX: 550, playerY: 250}],
       direction: null,
-      previous: [{playerX: 50, playerY: 50}]
+      width: 712,
+      height: 500,
+      winner: null
     });
     this.draw()
   }
 
   componentDidMount() {
     let user = userService.getUser();
-    this.setState({user});
+    this.setState({user})
+    
     window.requestAnimationFrame(this.draw)
+  }
+
+  componentDidUpdate() {
+    if (this.state.socketConnect) {
+      this.socket = window.io.connect({ query: `user=${JSON.stringify(this.state.user)}` });
+      this.socket.on('join', (data) => {
+        this.handleGameJoin(data);
+      });
+      this.setState({
+        socketConnect: false
+      })
+    } else {
+      // this.socket = window.io.connect({ query: `position=${JSON.stringify(this.state)}`})
+      // console.log(this.state.playerX)
+      // io({
+      //   query: {
+      //     position: this.state.playerX
+      //   }
+      // })
+    }
   }
 
 
@@ -203,7 +250,7 @@ class App extends Component {
               <Route exact path='/' render={(props) =>
                 <div>
                   <h1>Light Cycles</h1>
-              {(!this.state.winner) ? (<h4>You are {this.state.color}</h4>) : (<h4>De-Rezzed</h4>)}
+              {(!this.state.winner) ? (<h4>You are {this.state.player1.color}</h4>) : (<h4>De-Rezzed</h4>)}
                   <div className="myGame" >
                     <Stage tabIndex='1' ref="game" width={this.state.width} height={this.state.height}>
                       <Layer className="board" tabIndex='2'>
@@ -212,15 +259,25 @@ class App extends Component {
                           fill={'gray'}
                         />
                         <Line 
-                          points={this.makeTrail()}
-                          stroke={this.state.color}
+                          points={this.makeTrail(this.state.player1)}
+                          stroke={this.state.player1.color}
+                          strokeWidth={5}
+                        />
+                        <Line 
+                          points={this.makeTrail(this.state.player2)}
+                          stroke={this.state.player2.color}
                           strokeWidth={5}
                         />
                         <Rect 
-                          x={this.state.playerX - 5} y={this.state.playerY - 5} width={10} height={10}
+                          x={this.state.player1.playerX - 5} y={this.state.player1.playerY - 5} width={10} height={10}
                           fill={'blue'}
                         />
-                        <CanvasComponent tabIndex='3' onKeyPress={this.handleKeyDown} playerX={this.state.playerX} playerY={this.state.playerY} color={this.state.color}/>
+                        <Rect 
+                          x={this.state.player2.playerX - 5} y={this.state.player2.playerY - 5} width={10} height={10}
+                          fill={'orange'}
+                        />
+                        <CanvasComponent tabIndex='3' playerX={this.state.player1.playerX} playerY={this.state.player1.playerY} color={this.state.player1.color}/>
+                        <CanvasComponent tabIndex='3' playerX={this.state.player2.playerX} playerY={this.state.player2.playerY} color={this.state.player2.color}/>
                       </Layer>
                     </Stage>
                   </div>

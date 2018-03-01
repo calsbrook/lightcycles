@@ -21,7 +21,7 @@
   display: block;
   align-content: center;
   margin: auto;
-  border: 3px solid green;
+  border: 3px solid darkblue;
 }
 
 .board {
@@ -35,5 +35,11 @@ div.myGame {
   width: 50%;
   display: flex;
   margin: auto;
+}
+* {
+  background-color: darkslategray;
+}
 
+h1, h4 {
+  color: cyan;
 }

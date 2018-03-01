@@ -3,12 +3,14 @@ const jwt = require('jsonwebtoken');
 const SECRET = process.env.SECRET;
 
 function signup(req, res) {
-  var user = new User(req.body);
-  user.save()
-  .then(user => {
-    res.json({token: createJWT(user)});
-  })
-  .catch(err => res.status(400).json(err));
+    var user = new User(req.body);
+    user.wins = 0;
+    user.losses = 0;
+    user.save()
+    .then(user => {
+        res.json({token: createJWT(user)});
+    })
+    .catch(err => res.status(400).json(err));
 }
 
 function login(req, res) {

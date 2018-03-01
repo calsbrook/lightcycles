@@ -11,6 +11,7 @@ import userService from './utils/userService'
 import NavBar from './NavBar/NavBar'
 import SignupPage from './SignupPage/SignupPage'
 import LoginPage from './LoginPage/LoginPage'
+import ProfilePage from './ProfilePage/ProfilePage'
 import './App.css';
 
 
@@ -19,7 +20,7 @@ class App extends Component {
   constructor() {
     super()
     this.state = {
-      user: null,
+      user: {email: null},
       playerX: 50,
       playerY: 50,
       color: 'orange',
@@ -27,7 +28,7 @@ class App extends Component {
       turbo: false,
       previous: [{playerX: 50, playerY: 50}],
       direction: null,
-      width: 719,
+      width: 712,
       height: 500,
       winner: null
     }
@@ -124,8 +125,11 @@ class App extends Component {
     if(!this.state.winner) {
       if(this.collision()) {
         console.log('winner');
+        let userCopy = this.state.user
+        userCopy.losses = userCopy.losses + 1
         this.setState({
-          winner: true
+          winner: true,
+          user: userCopy
         })
       } else {
         window.requestAnimationFrame(this.draw)
@@ -153,7 +157,15 @@ class App extends Component {
   }
 
   handleLogin = () => {
-    this.setState({user: userService.getUser()});
+    this.setState({
+      user: userService.getUser(),
+      playerX: 50,
+      playerY: 50,
+      winner: null,
+      direction: null,
+      previous: [{playerX: 50, playerY: 50}]
+    });
+    this.draw()
   }
 
   componentDidMount() {
@@ -182,9 +194,16 @@ class App extends Component {
                   handleLogin={this.handleLogin}
                 />}
               />
+              <Route
+                exact path='/profile' render={(props) =>
+                <ProfilePage 
+                  user={this.state.user}
+                />}
+              />
               <Route exact path='/' render={(props) =>
                 <div>
-                  <h1>Light Bikes</h1>
+                  <h1>Light Cycles</h1>
+              {(!this.state.winner) ? (<h4>You are {this.state.color}</h4>) : (<h4>De-Rezzed</h4>)}
                   <div className="myGame" >
                     <Stage tabIndex='1' ref="game" width={this.state.width} height={this.state.height}>
                       <Layer className="board" tabIndex='2'>

@@ -22,8 +22,10 @@ app.get('/*', function(req, res) {
 });
 
 
-var port = process.env.PORT || 3001;
+const port = process.env.PORT || 3001;
 
-app.listen(port, function() {
+const server = app.listen(port, function() {
   console.log(`Express app running on port ${port}`)
 });
+
+require('./io').attach(server);

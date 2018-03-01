@@ -9,5 +9,9 @@
   }
   
   .NavBar-welcome {
-    color: grey;
+    color: white;
+  }
+
+  a {
+    color: white;
   }

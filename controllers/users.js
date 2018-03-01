@@ -6,6 +6,7 @@ function signup(req, res) {
     var user = new User(req.body);
     user.wins = 0;
     user.losses = 0;
+    user.color= 'orange';
     user.save()
     .then(user => {
         res.json({token: createJWT(user)});

@@ -31,7 +31,7 @@ class App extends Component {
         playerX: 250,
         playerY: 250,
         color: 'blue',
-        previous: [{playerX: 250, playerY: 250}],
+        previous: [{playerX: 230, playerY: 250},{playerX: 235, playerY: 250},{playerX: 240, playerY: 250},{playerX: 245, playerY: 250}, {playerX: 250, playerY: 250}],
         direction: null,
       },
       speed: 5,
@@ -90,22 +90,33 @@ class App extends Component {
 
   collision = () => {
     let currPos = {'playerX': this.state.player1.playerX, 'playerY': this.state.player1.playerY}
-    let previousCopy = [...this.state.player1.previous]
+    let previous1Copy = [...this.state.player1.previous]
+    let previous2Copy = [...this.state.player2.previous]
     let width = this.state.width
     let height = this.state.height
-    previousCopy[previousCopy.length-1] = {playerX: 999999, playerY: 999999}
+    previous1Copy[previous1Copy.length-1] = {playerX: 999999, playerY: 999999}
+    previous2Copy[previous2Copy.length-1] = {playerX: 999999, playerY: 999999}
     let check = false
-    previousCopy.forEach(function(e) {
-      if ((e.playerX === currPos.playerX && e.playerY === currPos.playerY) ||
-        currPos.playerX > width ||
+    previous1Copy.forEach(function(e) {
+      if ((e.playerX === currPos.playerX && e.playerY === currPos.playerY)) {
+        console.log('hit')
+        check = true
+      }
+    })
+    previous2Copy.forEach(function(e) {
+      if ((e.playerX === currPos.playerX && e.playerY === currPos.playerY)) {
+        console.log('hit')
+        check = true
+      }
+    })
+    if (currPos.playerX > width ||
         currPos.playerY > height ||
         currPos.playerX < 0 ||
         currPos.playerY < 0) {
           console.log('hit');
           check = true
-        }
-  })
-     return check 
+    }
+    return check 
   }
 
   draw = () => {
@@ -249,8 +260,9 @@ class App extends Component {
               />
               <Route exact path='/' render={(props) =>
                 <div>
-                  <h1>Light Cycles</h1>
-              {(!this.state.winner) ? (<h4>You are {this.state.player1.color}</h4>) : (<h4>De-Rezzed</h4>)}
+                  <h1>ライトサイクル</h1>
+                  <p>ＬＩＧＨＴ ＣＹＣＬＥＳ</p>
+              {(!this.state.winner) ? (<p>You are {this.state.player1.color}</p>) : (<p>░▒▓ＤＥ － ＲＥＺＥＤ▓▒░</p>)}
                   <div className="myGame" >
                     <Stage tabIndex='1' ref="game" width={this.state.width} height={this.state.height}>
                       <Layer className="board" tabIndex='2'>

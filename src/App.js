@@ -26,16 +26,18 @@ class App extends Component {
         color: 'orange',
         previous: [{playerX: 550, playerY: 250}],
         direction: null,
+        crashed: false
       },
       player2: {
-        playerX: 250,
+        playerX: 160,
         playerY: 250,
         color: 'blue',
-        previous: [{playerX: 230, playerY: 250},{playerX: 235, playerY: 250},{playerX: 240, playerY: 250},{playerX: 245, playerY: 250}, {playerX: 250, playerY: 250}],
+        previous: [{playerX: 140, playerY: 250},{playerX: 145, playerY: 250},{playerX: 150, playerY: 250},{playerX: 155, playerY: 250}, {playerX: 160, playerY: 250}],
         direction: null,
+        crashed: false
       },
       speed: 5,
-      width: 712,
+      width: 700,
       height: 500,
       winner: null,
       socketConnect: true
@@ -164,6 +166,9 @@ class App extends Component {
           winner: true,
           user: userCopy
         })
+        this.socket.emit('game-over', {
+          loser: this.socket.id
+        })
       } else {
         window.requestAnimationFrame(this.draw)
       }
@@ -222,13 +227,10 @@ class App extends Component {
         socketConnect: false
       })
     } else {
-      // this.socket = window.io.connect({ query: `position=${JSON.stringify(this.state)}`})
-      // console.log(this.state.playerX)
-      // io({
-      //   query: {
-      //     position: this.state.playerX
-      //   }
-      // })
+      this.socket.emit('move', {
+        x: this.state.player1.playerX,
+        y: this.state.player1.playerY
+      })
     }
   }
 
@@ -236,6 +238,7 @@ class App extends Component {
   render() {
     return (
       <div className="page" tabIndex='0' autoFocus="true" onKeyPress={this.handleKeyDown} className="App">
+      <div className="sun" ></div>
         <Router>
           <div>
             <NavBar user={this.state.user} handleLogout={this.handleLogout}/>

@@ -2,6 +2,7 @@
     display: flex;
     justify-content: center;
     margin: 0 0 20px;
+    color: pink;
   }
   
   .NavBar-link {
@@ -9,9 +10,9 @@
   }
   
   .NavBar-welcome {
-    color: white;
+    color: pink;
   }
 
   a {
-    color: white;
+    color: pink;
   }

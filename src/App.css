@@ -6,7 +6,7 @@
   background-color: #222;
   height: 150px;
   padding: 20px;
-  color: white;
+  color: pink;
 }
 
 .App-title {
@@ -21,7 +21,7 @@
   display: block;
   align-content: center;
   margin: auto;
-  border: 3px solid darkblue;
+  border: 2px solid limegreen;
 }
 
 .board {
@@ -40,10 +40,11 @@ div.myGame {
   background-color: darkslategray;
 }
 
-h1, p, h4 {
+h1, h4 {
   color: cyan;
 }
 
 p {
   font-size: 20px;
+  color:yellow;
 }

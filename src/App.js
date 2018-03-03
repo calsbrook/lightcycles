@@ -14,6 +14,33 @@ import LoginPage from './LoginPage/LoginPage'
 import ProfilePage from './ProfilePage/ProfilePage'
 import './App.css';
 
+var player1 = {
+  x: 550,
+  y: 250,
+  previous: [{x: 550, y: 250}],
+  direction: null,
+  speed: 5
+}
+
+var player2 = {
+  x: 160,
+  y: 250,
+  previous: [{x: 160, y: 250}],
+  direction: null,
+  speed: 5
+}
+const canvas = document.getElementById('canvo')
+const ctx = canvas.getContext("2d");
+
+function draw() {
+  ctx.beginPath();
+  ctx.rect(0, 0, 10, 10)
+  ctx.fillStyle = "orange";
+  ctx.fill();
+  ctx.closePath();
+}
+draw();
+
 class App extends Component {
 
   constructor() {
@@ -21,7 +48,7 @@ class App extends Component {
     this.state = {
       user: {email: null},
       player1: {
-        playerX: 550,
+        playerX: player1.x,
         playerY: 250,
         color: 'orange',
         previous: [{playerX: 550, playerY: 250}],
@@ -32,10 +59,11 @@ class App extends Component {
         playerX: 160,
         playerY: 250,
         color: 'blue',
-        previous: [{playerX: 140, playerY: 250},{playerX: 145, playerY: 250},{playerX: 150, playerY: 250},{playerX: 155, playerY: 250}, {playerX: 160, playerY: 250}],
+        previous: [{playerX: 160, playerY: 250}],
         direction: null,
         crashed: false
       },
+      bullshit: true,
       speed: 5,
       width: 700,
       height: 500,
@@ -46,75 +74,59 @@ class App extends Component {
   }
 
   handleGameJoin = (data) => {
-    console.log(data)
+    // console.log(data)
     console.log('jjjjoined')
   }
   //Game functions
   
   handleKeyDown = (e) => {
-    let player1Copy = {...this.state.player1}
     switch(e.key) {
       case 'w':
-        if(this.state.player1.direction !== 'down') {
-          player1Copy.direction = 'up'
-          this.setState({
-            player1: player1Copy
-          })
+        if(player1.direction !== 'down') {
+          player1.direction = 'up'
         }
         break;
       case 'a':
-        if(this.state.player1.direction !== 'right') {
-          player1Copy.direction = 'left'
-          this.setState({
-            player1: player1Copy
-          })
+        if(player1.direction !== 'right') {
+          player1.direction = 'left'
         }
         break;
       case 's':
-        if(this.state.player1.direction !== 'up') {
-          player1Copy.direction = 'down'
-          this.setState({
-            player1: player1Copy
-          })
+        if(player1.direction !== 'up') {
+          player1.direction = 'down'
         }
         break;
       case 'd':
-        if(this.state.player1.direction !== 'left') {
-          player1Copy.direction = 'right'
-          this.setState({
-            player1: player1Copy
-          })
+        if(player1.direction !== 'left') {
+          player1.direction = 'right'
         }
         break;
     }
-
   }
 
   collision = () => {
-    let currPos = {'playerX': this.state.player1.playerX, 'playerY': this.state.player1.playerY}
-    let previous1Copy = [...this.state.player1.previous]
-    let previous2Copy = [...this.state.player2.previous]
+    let currPos = {x: player1.x, y: player1.y}
     let width = this.state.width
     let height = this.state.height
-    previous1Copy[previous1Copy.length-1] = {playerX: 999999, playerY: 999999}
-    previous2Copy[previous2Copy.length-1] = {playerX: 999999, playerY: 999999}
+    player1.previous[player1.previous.length-1] = {x: 999999, y: 999999}
+    player2.previous[player2.previous.length-1] = {x: 999999, y: 999999}
     let check = false
-    previous1Copy.forEach(function(e) {
-      if ((e.playerX === currPos.playerX && e.playerY === currPos.playerY)) {
+    player1.previous.forEach(function(e) {
+      if ((e.x === currPos.x && e.y === currPos.y)) {
         console.log('hit')
         check = true
       }
     })
-    previous2Copy.forEach(function(e) {
-      if ((e.playerX === currPos.playerX && e.playerY === currPos.playerY)) {
+    player2.previous.forEach(function(e) {
+      if ((e.x === currPos.x && e.y === currPos.y)) {
         console.log('hit')
         check = true
       }
     })
-    if (currPos.playerX > width ||
-        currPos.playerY > height ||
-        currPos.playerX < 0 ||
-        currPos.playerY < 0) {
+    if (currPos.x > width ||
+        currPos.y > height ||
+        currPos.x < 0 ||
+        currPos.y < 0) {
           console.log('hit');
           check = true
     }
@@ -122,38 +134,21 @@ class App extends Component {
   }
 
   draw = () => {
-    let previousCopy = [...this.state.player1.previous]
-    let player1Copy = {...this.state.player1}
-    switch(this.state.player1.direction) {
+    switch(player1.direction) {
       case 'up':
-        previousCopy.push({playerX: this.state.player1.playerX, playerY: this.state.player1.playerY - this.state.speed})
-        player1Copy.playerY = this.state.player1.playerY - this.state.speed
-        player1Copy.previous = previousCopy
-        this.setState({player1: player1Copy})
+        player1.y = player1.y - player1.speed
+        player1.previous.push({x: player1.x, y: player1.y})
         break;
       case 'left':
-        previousCopy.push({playerX: this.state.player1.playerX - this.state.speed, playerY: this.state.player1.playerY})
-        player1Copy.playerX = this.state.player1.playerX - this.state.speed,
-        player1Copy.previous = previousCopy
-        this.setState({
-          player1: player1Copy
-        })
+        player1.x = player1.x - player1.speed
+        player1.previous.push({x: player1.x, y: player1.y})
         break;
       case 'down':
-        previousCopy.push({playerX: this.state.player1.playerX, playerY: this.state.player1.playerY + this.state.speed})
-        player1Copy.playerY = this.state.player1.playerY + this.state.speed,
-        player1Copy.previous = previousCopy
-        this.setState({
-          player1: player1Copy
-        })
-        break;
+        player1.y = player1.y + player1.speed
+        player1.previous.push({x: player1.x, y: player1.y});
       case 'right':
-        previousCopy.push({playerX: this.state.player1.playerX + this.state.speed, playerY: this.state.player1.playerY })
-        player1Copy.playerX = this.state.player1.playerX + this.state.speed,
-        player1Copy.previous = previousCopy
-        this.setState({
-          player1: player1Copy
-        })
+        player1.x = player1.x + player1.speed
+        player1.previous.push({x: player1.x, y: player1.y})
         break;
       }
     if(!this.state.winner) {
@@ -161,7 +156,6 @@ class App extends Component {
         console.log('winner');
         let userCopy = this.state.user
         userCopy.losses = userCopy.losses + 1
-        // this.socket.emit('gameOver')
         this.setState({
           winner: true,
           user: userCopy
@@ -170,6 +164,19 @@ class App extends Component {
           loser: this.socket.id
         })
       } else {
+        // this.socket.on('updatePlayer2', function (data){
+        //   player2.x = data.x
+        //   player2.y = data.y
+        //   player2.previous.push({x: data.x, y: data.y})
+        // })
+        this.socket.emit('move', {
+          x: this.state.width - player1.x,
+          y: this.state.height - player1.y
+        })
+        // console.log(player1.previous)
+        this.setState({
+          bullshit: true
+        })
         window.requestAnimationFrame(this.draw)
       }
     }
@@ -178,8 +185,8 @@ class App extends Component {
   makeTrail(player) {
     let trail = []
     player.previous.forEach(function (key) {
-      trail.push(key.playerX)
-      trail.push(key.playerY)
+      trail.push(key.x)
+      trail.push(key.y)
     })
     return trail
   }
@@ -227,10 +234,7 @@ class App extends Component {
         socketConnect: false
       })
     } else {
-      this.socket.emit('move', {
-        x: this.state.player1.playerX,
-        y: this.state.player1.playerY
-      })
+      
     }
   }
 
@@ -267,34 +271,34 @@ class App extends Component {
                   <p>ＬＩＧＨＴ ＣＹＣＬＥＳ</p>
               {(!this.state.winner) ? (<p>You are {this.state.player1.color}</p>) : (<p>░▒▓ＤＥ － ＲＥＺＥＤ▓▒░</p>)}
                   <div className="myGame" >
-                    <Stage tabIndex='1' ref="game" width={this.state.width} height={this.state.height}>
+                    {/* <Stage tabIndex='1' ref="game" width={this.state.width} height={this.state.height}>
                       <Layer className="board" tabIndex='2'>
                         <Rect 
                           x={0} y={0} width={this.state.width} height={this.state.height}
                           fill={'gray'}
                         />
                         <Line 
-                          points={this.makeTrail(this.state.player1)}
+                          points={this.makeTrail(player1)}
                           stroke={this.state.player1.color}
                           strokeWidth={5}
                         />
                         <Line 
-                          points={this.makeTrail(this.state.player2)}
+                          points={this.makeTrail(player2)}
                           stroke={this.state.player2.color}
                           strokeWidth={5}
                         />
                         <Rect 
-                          x={this.state.player1.playerX - 5} y={this.state.player1.playerY - 5} width={10} height={10}
+                          x={player1.x - 5} y={player1.y - 5} width={10} height={10}
                           fill={'blue'}
                         />
                         <Rect 
-                          x={this.state.player2.playerX - 5} y={this.state.player2.playerY - 5} width={10} height={10}
+                          x={player2.x - 5} y={player2.y - 5} width={10} height={10}
                           fill={'orange'}
                         />
                         <CanvasComponent tabIndex='3' playerX={this.state.player1.playerX} playerY={this.state.player1.playerY} color={this.state.player1.color}/>
                         <CanvasComponent tabIndex='3' playerX={this.state.player2.playerX} playerY={this.state.player2.playerY} color={this.state.player2.color}/>
                       </Layer>
-                    </Stage>
+                    </Stage> */}
                   </div>
                 </div>
               }/>

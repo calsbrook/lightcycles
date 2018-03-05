@@ -20,6 +20,7 @@ var player1 = {
   previous: [{x: 550, y: 250}],
   direction: null,
   speed: 5,
+  color: 'orange',
   lose: false
 }
 
@@ -28,6 +29,7 @@ var player2 = {
   y: 250,
   previous: [{x: 160, y: 250}],
   direction: null,
+  color: 'blue',
   speed: 5
 }
 
@@ -51,7 +53,7 @@ class App extends Component {
       width: 700,
       height: 500,
       winner: null,
-      socketConnect: true
+      socketConnect: false
     }
     
   }
@@ -87,9 +89,6 @@ class App extends Component {
         //   y: this.state.height - player1.y
         // })
         // console.log(player1.previous)
-        this.setState({
-          bullshit: true
-        })
         window.requestAnimationFrame(this.draw)
       }
     }
@@ -99,9 +98,22 @@ class App extends Component {
     var ctx = canvas.getContext('2d')
     this.drawBackground();
     this.move();
-    this.drawTrail();
-    this.drawBike();
+    this.drawTrail(player1);
+    this.drawTrail(player2);
+    this.drawBike(player1);
+    this.drawBike(player2)
     if (!this.collision()) {
+      this.socket.on('updatePlayer2', function (data){
+        if(player2.x !== data.x || player2.y !== data.y) {
+          player2.x = data.x
+          player2.y = data.y
+          player2.previous.push({x: data.x, y: data.y})
+        }
+      })
+      this.socket.emit('move', {
+        x: this.state.width - player1.x,
+        y: this.state.height - player1.y
+      })
       window.requestAnimationFrame(this.draw)
     } else {
       let player1Copy = {...player1}
@@ -133,15 +145,19 @@ class App extends Component {
     p2PreviousCopy.forEach(function(e) {
         if ((e.x === currPos.x && e.y === currPos.y)) {
         console.log('hit')
+        console.log(player1.previous)
+        console.log(currPos)
         player1.lose = true
         check = true
         }
     })
-    if (currPos.x > width ||
-        currPos.y > height ||
+    if (currPos.x > 700 ||
+        currPos.y > 500 ||
         currPos.x < 0 ||
         currPos.y < 0) {
             console.log('hit');
+            console.log(currPos)
+            console.log(player1.previous)
             player1.lose = true
             check = true
     }
@@ -176,22 +192,25 @@ keyDownHandler(e) {
 move() {
     if(player1.direction) {
         switch(player1.direction) {
-        case 'up':
-            player1.y = player1.y - player1.speed
-            break;
-        case 'left':
-            player1.x = player1.x - player1.speed
-            break;
-        case 'down':
-            player1.y = player1.y + player1.speed
-            break
-        case 'right':
-            player1.x = player1.x + player1.speed
-            break;
-        default :
-            break;
+          case 'up':
+              player1.y = player1.y - player1.speed
+              break;
+          case 'left':
+              player1.x = player1.x - player1.speed
+              break;
+          case 'down':
+              player1.y = player1.y + player1.speed
+              break
+          case 'right':
+              player1.x = player1.x + player1.speed
+              break;
+          default :
+              break;
         }
-        player1.previous.push({x: player1.x, y: player1.y})
+        let prevPos = (player1.previous[player1.previous.length-1])
+        let currPos = {x: player1.x, y: player1.y}
+        player1.previous.push(currPos)
+        
     }
 }
 
@@ -204,13 +223,13 @@ parseTrail(previous) {
     return trail
 }
 
-  drawTrail = () => {
+  drawTrail = (player) => {
     var canvas = document.getElementById('canvo')
     var ctx = canvas.getContext('2d')
-    let trail = this.parseTrail(player1.previous)
+    let trail = this.parseTrail(player.previous)
     ctx.beginPath();
     ctx.lineWidth = 5
-    ctx.strokeStyle = 'orange'
+    ctx.strokeStyle = player.color
     ctx.moveTo(trail[0], trail[1])
     for (let i = 2; i < trail.length; i += 2) {
         ctx.lineTo(trail[i], trail[i + 1])
@@ -218,12 +237,12 @@ parseTrail(previous) {
     ctx.stroke();
   }
 
-  drawBike = () => {
+  drawBike = (player) => {
     var canvas = document.getElementById('canvo')
     var ctx = canvas.getContext('2d')
     ctx.beginPath();
-    ctx.rect(player1.x-5, player1.y-5, 10, 10)
-    ctx.fillStyle = "orange";
+    ctx.rect(player.x-5, player.y-5, 10, 10)
+    ctx.fillStyle = player.color;
     ctx.fill()
     ctx.closePath();
   }
@@ -259,20 +278,31 @@ parseTrail(previous) {
     document.addEventListener('keydown', this.keyDownHandler, false)
     var canvas = document.getElementById('canvo')
     var ctx = canvas.getContext('2d')
-    this.draw();
-    let user = userService.getUser();
-    this.setState({user})
-    // window.requestAnimationFrame(draw)
-  }
-
-  componentDidUpdate() {
-    if (this.state.socketConnect) {
+    if (!this.state.socketConnect) {
       this.socket = window.io.connect({ query: `user=${JSON.stringify(this.state.user)}` });
       this.socket.on('join', (data) => {
         this.handleGameJoin(data);
       });
       this.setState({
-        socketConnect: false
+        socketConnect: true
+      })
+    } else {
+      console.log('wat')
+    }
+    let user = userService.getUser();
+    this.setState({user})
+    this.draw();
+    // window.requestAnimationFrame(draw)
+  }
+
+  componentDidUpdate() {
+    if (!this.state.socketConnect) {
+      this.socket = window.io.connect({ query: `user=${JSON.stringify(this.state.user)}` });
+      this.socket.on('join', (data) => {
+        this.handleGameJoin(data);
+      });
+      this.setState({
+        socketConnect: true
       })
     } else {
       console.log('wat')

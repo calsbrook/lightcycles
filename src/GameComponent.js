@@ -35,6 +35,8 @@ class GameComponent extends Component {
     }
 
     draw = () => {
+        var canvas = this.refs.canvas
+        var ctx = canvas.getContext("2d")
         this.drawBackground();
         this.move();
         this.drawTrail();
@@ -135,9 +137,11 @@ class GameComponent extends Component {
         return trail
     }
 
+    //rendering
+
     drawTrail() {
-        const canvas = this.refs.canvas
-        const ctx = canvas.getContext("2d")
+        var canvas = this.refs.canvas
+        var ctx = canvas.getContext("2d")
         let trail = this.parseTrail(player1.previous)
         ctx.beginPath();
         ctx.lineWidth = 5
@@ -150,8 +154,8 @@ class GameComponent extends Component {
     }
 
     drawBike() {
-        const canvas = this.refs.canvas
-        const ctx = canvas.getContext("2d")
+        var canvas = this.refs.canvas
+        var ctx = canvas.getContext("2d")
         ctx.beginPath();
         ctx.rect(player1.x-5, player1.y-5, 10, 10)
         ctx.fillStyle = "orange";
@@ -160,8 +164,8 @@ class GameComponent extends Component {
     }
 
     drawBackground = () => {
-        const canvas = this.refs.canvas
-        const ctx = canvas.getContext("2d")
+        var canvas = this.refs.canvas
+        var ctx = canvas.getContext("2d")
         ctx.beginPath();
         ctx.rect(0, 0, 700, 500)
         ctx.fillStyle = "gray";

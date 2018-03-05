@@ -25,9 +25,9 @@ var player1 = {
 }
 
 var player2 = {
-  x: 160,
+  x: 150,
   y: 250,
-  previous: [{x: 160, y: 250}],
+  previous: [{x: 150, y: 250}],
   direction: null,
   color: 'blue',
   speed: 5
@@ -40,7 +40,7 @@ class App extends Component {
   constructor() {
     super()
     this.state = {
-      user: {email: null},
+      user: {email: 'a'},
       player1: {
         color: 'orange',
         crashed: false
@@ -116,11 +116,15 @@ class App extends Component {
       })
       window.requestAnimationFrame(this.draw)
     } else {
+      this.socket.emit('game-over', {
+        loser: this.socket.id
+      })
       let player1Copy = {...player1}
       player1Copy.lose = true
       this.setState({
         player1: player1Copy
       })
+      this.animateDeath(player1)
     }
   }
   
@@ -155,11 +159,11 @@ class App extends Component {
         currPos.y > 500 ||
         currPos.x < 0 ||
         currPos.y < 0) {
-            console.log('hit');
-            console.log(currPos)
-            console.log(player1.previous)
-            player1.lose = true
-            check = true
+          console.log('hit');
+          console.log(currPos)
+          console.log(player1.previous)
+          player1.lose = true
+          check = true
     }
     return check
   }
@@ -214,14 +218,28 @@ move() {
     }
 }
 
-parseTrail(previous) {
+  parseTrail(previous) {
     let trail = []
     previous.forEach(function (key) {
         trail.push(key.x)
         trail.push(key.y)
     })
     return trail
-}
+  }
+  
+  animateDeath = (player) => {
+    var canvas = document.getElementById('canvo')
+    var ctx = canvas.getContext('2d')
+    let trail = this.parseTrail(player.previous)
+    ctx.beginPath();
+    ctx.linewidth = 4
+    ctx.strokeStyle = 'gray';
+    ctx.moveTo(550, 250)
+    for (let i = 2; i < trail.length; i += 2) {
+      ctx.lineTo(trail[i], trail[i + 1])
+    }
+    ctx.stroke();
+  }
 
   drawTrail = (player) => {
     var canvas = document.getElementById('canvo')
@@ -318,34 +336,45 @@ parseTrail(previous) {
             <NavBar user={this.state.user} handleLogout={this.handleLogout}/>
             <Switch>
               <Route exact path='/signup' render={(props) => 
-                <SignupPage 
-                  {...props}
-                  handleSignup={this.handleSignup}
-                />
+                <div>
+                  <SignupPage 
+                    {...props}
+                    handleSignup={this.handleSignup}
+                  />
+                  <canvas hidden="true" ref="canvas" id="canvo" width={700} height={500} />
+                </div>
               }/>
               <Route exact path='/login' render={(props) => 
-                <LoginPage
-                  {...props}
-                  handleLogin={this.handleLogin}
-                />
+                <div>
+                  <LoginPage
+                    {...props}
+                    handleLogin={this.handleLogin}
+                  />
+                  <canvas hidden="true" ref="canvas" id="canvo" width={700} height={500} />
+                </div>
               }/>
               <Route
                 exact path='/profile' render={(props) =>
-                <ProfilePage 
-                  user={this.state.user}
-                />
+                  <div>
+                    <ProfilePage 
+                      user={this.state.user}
+                    />
+                    <canvas hidden="true" ref="canvas" id="canvo" width={700} height={500} />
+                  </div>
               }/>
               <Route exact path='/' render={(props) =>
-                <div>
+              <div>
                   <h1>ライトサイクル</h1>
                   <p>ＬＩＧＨＴ ＣＹＣＬＥＳ</p>
-                  {(!this.state.player1.lose) ? (<p>You are {this.state.player1.color}</p>) : (<p>░▒▓ＤＥ － ＲＥＺＥＤ▓▒░</p>)}
+                  {(!this.state.player1.lose) ? (<p hidden={!this.state.user}>You are {this.state.player1.color}</p>) : (<p hidden={!this.state.user}>░▒▓ＤＥ － ＲＥＺＥＤ▓▒░</p>)}
+                  <p>Use WASD to move</p>
                   <div className="myGame" >
-                    <canvas ref="canvas" id="canvo" width={700} height={500} />
+                    <canvas hidden={!this.state.user} ref="canvas" id="canvo" width={700} height={500} />
                   </div>
                 </div>
               }/>
             </Switch>
+                
           </div>
         </Router>
       </div>

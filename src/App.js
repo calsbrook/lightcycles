@@ -40,7 +40,7 @@ class App extends Component {
   constructor() {
     super()
     this.state = {
-      user: {email: 'a'},
+      user: {email: false},
       player1: {
         color: 'orange',
         crashed: false
@@ -69,7 +69,7 @@ class App extends Component {
     if(!this.state.winner) {
       if(this.collision()) {
         console.log('winner');
-        let userCopy = this.state.user
+        let userCopy = {...this.state.user}
         userCopy.losses = userCopy.losses + 1
         this.setState({
           winner: true,
@@ -102,29 +102,31 @@ class App extends Component {
     this.drawTrail(player2);
     this.drawBike(player1);
     this.drawBike(player2)
-    if (!this.collision()) {
-      this.socket.on('updatePlayer2', function (data){
-        if(player2.x !== data.x || player2.y !== data.y) {
-          player2.x = data.x
-          player2.y = data.y
-          player2.previous.push({x: data.x, y: data.y})
-        }
-      })
-      this.socket.emit('move', {
-        x: this.state.width - player1.x,
-        y: this.state.height - player1.y
-      })
-      window.requestAnimationFrame(this.draw)
-    } else {
-      this.socket.emit('game-over', {
-        loser: this.socket.id
-      })
-      let player1Copy = {...player1}
-      player1Copy.lose = true
-      this.setState({
-        player1: player1Copy
-      })
-      this.animateDeath(player1)
+    if (this.state.socketConnect) {
+      if (!this.collision()) {
+        this.socket.on('updatePlayer2', function (data){
+          if(player2.x !== data.x || player2.y !== data.y) {
+            player2.x = data.x
+            player2.y = data.y
+            player2.previous.push({x: data.x, y: data.y})
+          }
+        })
+        this.socket.emit('move', {
+          x: this.state.width - player1.x,
+          y: this.state.height - player1.y
+        })
+        window.requestAnimationFrame(this.draw)
+      } else {
+        this.socket.emit('game-over', {
+          loser: this.socket.id
+        })
+        let player1Copy = {...player1}
+        player1Copy.lose = true
+        this.setState({
+          player1: player1Copy
+        })
+        this.animateDeath(player1)
+      }
     }
   }
   
@@ -139,84 +141,83 @@ class App extends Component {
     p2PreviousCopy[p2PreviousCopy.length-1] = {x: 999999, y: 999999}
     let check = false
     p1PreviousCopy.forEach(function(e) {
-        if ((e.x === currPos.x && e.y === currPos.y)) {
-        console.log('hit')
-        console.log(player1.previous)
-        player1.lose = true
-        check = true
-        }
+      if ((e.x === currPos.x && e.y === currPos.y)) {
+      console.log('hit')
+      console.log(player1.previous)
+      player1.lose = true
+      check = true
+      }
     })
     p2PreviousCopy.forEach(function(e) {
-        if ((e.x === currPos.x && e.y === currPos.y)) {
-        console.log('hit')
-        console.log(player1.previous)
-        console.log(currPos)
-        player1.lose = true
-        check = true
-        }
+      if ((e.x === currPos.x && e.y === currPos.y)) {
+      console.log('hit')
+      console.log(player1.previous)
+      console.log(currPos)
+      player1.lose = true
+      check = true
+      }
     })
     if (currPos.x > 700 ||
-        currPos.y > 500 ||
-        currPos.x < 0 ||
-        currPos.y < 0) {
-          console.log('hit');
-          console.log(currPos)
-          console.log(player1.previous)
-          player1.lose = true
-          check = true
+      currPos.y > 500 ||
+      currPos.x < 0 ||
+      currPos.y < 0) {
+        console.log('hit');
+        console.log(currPos)
+        console.log(player1.previous)
+        player1.lose = true
+        check = true
     }
     return check
   }
 
-keyDownHandler(e) {
+  keyDownHandler(e) {
     switch(e.key) {
-        case 'w':
-            if(player1.direction !== 'down') {
-                player1.direction = 'up'
-            }
-            break;
-        case 'a':
-            if(player1.direction !== 'right') {
-                player1.direction = 'left'
-            }
-            break;
-        case 's':
-            if(player1.direction !== 'up') {
-                player1.direction = 'down'
-            }
-            break;
-        case 'd':
-            if(player1.direction !== 'left') {
-                player1.direction = 'right'
-            }
-            break;
-    }
-}
-
-move() {
-    if(player1.direction) {
-        switch(player1.direction) {
-          case 'up':
-              player1.y = player1.y - player1.speed
-              break;
-          case 'left':
-              player1.x = player1.x - player1.speed
-              break;
-          case 'down':
-              player1.y = player1.y + player1.speed
-              break
-          case 'right':
-              player1.x = player1.x + player1.speed
-              break;
-          default :
-              break;
+      case 'w':
+        if(player1.direction !== 'down') {
+            player1.direction = 'up'
         }
-        let prevPos = (player1.previous[player1.previous.length-1])
-        let currPos = {x: player1.x, y: player1.y}
-        player1.previous.push(currPos)
-        
+        break;
+      case 'a':
+        if(player1.direction !== 'right') {
+            player1.direction = 'left'
+        }
+        break;
+      case 's':
+        if(player1.direction !== 'up') {
+            player1.direction = 'down'
+        }
+        break;
+      case 'd':
+        if(player1.direction !== 'left') {
+            player1.direction = 'right'
+        }
+        break;
     }
-}
+  }
+
+  move() {
+    if(player1.direction) {
+      switch(player1.direction) {
+        case 'up':
+          player1.y = player1.y - player1.speed
+          break;
+        case 'left':
+          player1.x = player1.x - player1.speed
+          break;
+        case 'down':
+          player1.y = player1.y + player1.speed
+          break
+        case 'right':
+          player1.x = player1.x + player1.speed
+          break;
+        default :
+          break;
+      }
+      let prevPos = (player1.previous[player1.previous.length-1])
+      let currPos = {x: player1.x, y: player1.y}
+      player1.previous.push(currPos)
+    }
+  }
 
   parseTrail(previous) {
     let trail = []
@@ -292,29 +293,31 @@ move() {
     });
   }
 
+  
+
   componentDidMount() {
     document.addEventListener('keydown', this.keyDownHandler, false)
     var canvas = document.getElementById('canvo')
     var ctx = canvas.getContext('2d')
-    if (!this.state.socketConnect) {
-      this.socket = window.io.connect({ query: `user=${JSON.stringify(this.state.user)}` });
-      this.socket.on('join', (data) => {
-        this.handleGameJoin(data);
-      });
-      this.setState({
-        socketConnect: true
-      })
-    } else {
-      console.log('wat')
-    }
     let user = userService.getUser();
     this.setState({user})
+    // if (!this.state.socketConnect && this.state.user) {
+    //   this.socket = window.io.connect({ query: `user=${JSON.stringify(this.state.user)}` });
+    //   this.socket.on('join', (data) => {
+    //     this.handleGameJoin(data);
+    //   });
+    //   this.setState({
+    //     socketConnect: true
+    //   })
+    // } else {
+    //   console.log('wat')
+    // }
     this.draw();
     // window.requestAnimationFrame(draw)
   }
 
   componentDidUpdate() {
-    if (!this.state.socketConnect) {
+    if (!this.state.socketConnect && this.state.user) {
       this.socket = window.io.connect({ query: `user=${JSON.stringify(this.state.user)}` });
       this.socket.on('join', (data) => {
         this.handleGameJoin(data);
@@ -322,6 +325,7 @@ move() {
       this.setState({
         socketConnect: true
       })
+      window.requestAnimationFrame(this.draw)
     } else {
       console.log('wat')
     }

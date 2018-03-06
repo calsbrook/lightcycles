@@ -1,0 +1,8 @@
+div.progress {
+    margin: 50% auto;
+    margin-top: 0;
+    margin-bottom: 0;
+    display: flex;
+    color: blue;
+    background-color: orange;
+}

@@ -37,9 +37,17 @@ io.sockets.on('connection', (socket) => {
         // console.log(data)
     });
 
-    socket.on('game-over', function (data) {
-        console.log(data)
+    socket.on('game over', function (data) {
+        let game = users[socket.id].currentGame
+        if (game) {
+            socket.to(`game room ${game.id}`).emit('winner', data)
+            console.log(`game over received on ${socket.id}`)
+        }
+        // console.log(data)
         // console.log(users)
+    })
+    socket.on('winner', function (data) {
+        console.log(`winner received on ${socket.id}`)
     })
     socket.on('disconnect', () => {
         delete users[socket.id]
@@ -53,7 +61,6 @@ io.sockets.on('connection', (socket) => {
 
 function getClientsInRoom(room) {
     var clients = [];
-    // console.log(io.sockets.adapter.rooms)
     for (var clientId in io.sockets.adapter.rooms[room].sockets) {
         clients.push(io.sockets.connected[clientId]);
     }
@@ -65,22 +72,15 @@ function migratePlayers() {
     console.log('NUMBER OF PLAYERS IN WAITING ROOM: ' + players.length)
     if (players.length >= 2) {
         var game = new Game(gameID++, users[players[0].id], users[players[0].id])
-        // console.log(`players[0]]: ${players[0]}`)
-        // console.log(players[0])
         players[0].leave('waiting room')
         players[1].leave('waiting room')
         players[0].join(`game room ${game.id}`)
         players[1].join(`game room ${game.id}`)
-        // console.log('PLAYER 0s ROOMS')
-        // console.log( players[0].rooms)
         io.to(`game ${game}`).emit('join')
         users[players[0].id].currentGame = game
         users[players[1].id].currentGame = game
         users.save
-        // console.log(users)
-        // console.log(users[players[0].id])
         console.log(`${JSON.stringify(users[players[0].id].name)} and ${JSON.stringify(users[players[1].id].name)} have joined game ID ${game.id}`)
-        // if(users[socket.id].currentGame.id) {console.log('BIG BOY RIGHT HERE: ' + users[socket.id])}
     }
 }
 

@@ -31,12 +31,16 @@
 }
 
 div.myGame {
-  width: 50%;
   display: flex;
   margin: auto;
 }
 * {
   background-color: darkslategray;
+}
+
+canvas {
+  display: flex;
+  margin: auto;
 }
 
 h1, h4 {
@@ -45,5 +49,6 @@ h1, h4 {
 
 p {
   font-size: 20px;
-  color:yellow;
+  color:orange;
+  font: monospace;
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import {ProgressBar} from 'react-materialize'
 import './ProfilePage.css';
 
 // const barStyle = {
@@ -10,12 +11,14 @@ const ProfilePage = (props) => {
         <div>
             <h1>{props.user.name}</h1>
             <h4>Winrate: {(props.user.wins) ? Math.floor(((props.user.wins) / (props.user.losses + props.user.wins) ) * 100): 0}%</h4>
-            <div className="w3-border">
-                <div className="w3-grey" style={{height:'24px', width: '50%', color: 'black'}}></div>
+            <div className="progress">
+                <ProgressBar 
+                    progress={(props.user.wins) ? Math.floor(((props.user.wins) / (props.user.losses + props.user.wins) ) * 100): 0}
+                    color="yellow"
+                />
             </div>
             <h4>Wins: {props.user.wins}</h4>
             <h4>Losses: {props.user.losses}</h4>
-            <h4>Color: {props.user.color}</h4>
         </div>
     )
 }

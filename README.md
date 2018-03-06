@@ -16,7 +16,7 @@
 </ul>
 
 <h3>Links</h3>
-<a href="http://lightcycle.herokuapp.com">Try the game</a>
+<a href="http://lightcycles.herokuapp.com">Try the game</a>
 <br>
 <a href="https://trello.com/b/Z8MvB0hA/l-i-g-h-t-c-y-c-l-e-s">Trello Board</a>
 <br><br>

@@ -35,7 +35,7 @@ div.myGame {
   margin: auto;
 }
 * {
-  background-color: darkslategray;
+  background-color: rgb(24, 24, 24);
 }
 
 canvas {

@@ -159,8 +159,11 @@ class App extends Component {
       console.log('YOU WIN')
       let userCopy = {...this.state.user}
       userCopy.wins = userCopy.wins + 1
+      let player2Copy = {...this.state.player2}
+      player2Copy.crashed = true
       this.setState({
-        user: userCopy
+        user: userCopy,
+        player2: player2Copy
       })
     }
   }
@@ -266,7 +269,7 @@ class App extends Component {
     var ctx = canvas.getContext('2d')
     ctx.beginPath();
     ctx.rect(0, 0, 700, 500)
-    ctx.fillStyle = "gray";
+    ctx.fillStyle = "black";
     ctx.fill()
     ctx.closePath()
   }
@@ -353,7 +356,7 @@ class App extends Component {
               <div>
                   <h1>ライトサイクル</h1>
                   <p>ＬＩＧＨＴ ＣＹＣＬＥＳ</p>
-                  {(!this.state.player1.lose) ? (<p hidden={!this.state.user}>You are {this.state.player1.color}</p>) : (<p hidden={!this.state.user}>░▒▓ＤＥ － ＲＥＺＥＤ▓▒░</p>)}
+                  {(!player1.lose) ? ((this.state.player2.crashed) ? (<p hidden={!this.state.user}>I knew you'd win! They haven't built a circuit that could hold you!</p>) : (<p hidden={!this.state.user}>You are {this.state.player1.color}</p>) ) : (<p hidden={!this.state.user}>░▒▓ＤＥ － ＲＥＺＥＤ▓▒░</p>)}
                   <p>Use WASD to move</p>
                   <div className="myGame">
                     <canvas hidden={!this.state.user} ref="canvas" id="canvo" width={700} height={500} />
